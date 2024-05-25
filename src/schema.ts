@@ -6,9 +6,15 @@ export const typeDefs = `#graphql
     posts:[Post]
     user(userId:ID!):User
   }
+
+
+  type AuthPayload{
+    token:String
+    userError:String
+  }
   type Mutation {
-    signup(name:String!
-      email:String!
+    signup(name:String,
+      email:String!,
       password:String!
     ):AuthPayload
 
@@ -22,12 +28,10 @@ export const typeDefs = `#graphql
       content:String!
 
     ):PostPayload
+    updatePost(postId:ID!,post:PostInput):PostPayload
   }
 
-type AuthPayload{
-  token:String
-  userError:String
-}
+
  type PostPayload{
   userError:String
   post:Post
@@ -42,7 +46,7 @@ type AuthPayload{
   updatedAt:String
   published:Boolean
   }
-
+ 
   type User {
     id:ID!
     name:String
@@ -51,16 +55,20 @@ type AuthPayload{
     createdAt:String
     updatedAt:String
     posts:[Post]
-    profile Profile
+    profile:Profile
   }
 
   type Profile {
     id:Int
-  bio:String
+   bio:String
   createdAt:String
   updatedAt:String
   userId:Int
-  user User!
+  user:User!
 
+  }
+  input PostInput{
+    title:String
+    content:String
   }
 `;

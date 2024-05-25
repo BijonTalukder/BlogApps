@@ -3,36 +3,56 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./schema";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { DefaultArgs } from "@prisma/client/runtime/library";
 import { jwtHelpers } from "./utils/jwtHelpers";
 
+// Create a new instance of the PrismaClient
+const prisma = new PrismaClient();
+
+// Create a new instance of the ApolloServer
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 
-const prisma = new PrismaClient();
-const main = async () => {
-  const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-    context: async ({
-      req,
-    }): Promise<{
-      prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
-      userInfo: {
-        userId: number | null;
-      } | null;
-    }> => {
-      const userInfo = await jwtHelpers.getUserInfo(
-        req.headers.authorization as string
-      );
-      return {
-        prisma,
-        userInfo,
-      };
-    },
-  });
+interface IContext {
+  prisma: PrismaClient;
+  userInfo: { userId: number | null } | null;
+}
 
-  console.log(`🚀  Server ready at: ${url}`);
+
+const main = async () => {
+  try {
+    const { url } = await startStandaloneServer(server, {
+      listen: { port: 4000 },
+      context: async ({ req }): Promise<IContext> => {
+        // Extract the authorization header from the request
+        const authHeader = req.headers.authorization || '';
+        console.log(authHeader);
+        
+        let userInfo = null;
+        
+        if (authHeader) {
+          try {
+            // Get user information from the JWT token
+            userInfo = await jwtHelpers.getUserInfo(authHeader);
+          } catch (error) {
+            console.error('Error getting user info from JWT:', error);
+          }
+        }
+console.log(userInfo);
+
+        return {
+          prisma,
+          userInfo
+        };
+      },
+    });
+
+    console.log(`🚀  Server ready at: ${url}`);
+  } catch (error) {
+    console.error('Error starting the server:', error);
+  }
 };
+
+// Call the main function to start the server
 main();

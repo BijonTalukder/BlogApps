@@ -6,7 +6,9 @@ const generateToken = async (payload: any) => {
 };
 const getUserInfo = async (token: string) => {
   try {
-    const userData = jwt.verify(token, "signature");
+    const userData = jwt.verify(token, "signature") as {
+      userId:number
+    };
     return userData
   } catch (error) {
     return null;
