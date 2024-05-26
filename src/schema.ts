@@ -5,6 +5,7 @@ export const typeDefs = `#graphql
     users:[User]
     posts:[Post]
     user(userId:ID!):User
+    profile(userId:ID!):Profile
   }
 
 
@@ -29,6 +30,8 @@ export const typeDefs = `#graphql
 
     ):PostPayload
     updatePost(postId:ID!,post:PostInput):PostPayload
+    deletePost(postId:ID!):PostPayload
+    publishPost(postId:ID!):PostPayload
   }
 
 
@@ -46,7 +49,7 @@ export const typeDefs = `#graphql
   updatedAt:String
   published:Boolean
   }
- 
+
   type User {
     id:ID!
     name:String
